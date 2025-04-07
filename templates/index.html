@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}Unlocking CRISPR{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="d-flex justify-content-end mb-3">
+            <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#newSessionModal">
+                <i class="bi bi-plus-circle me-1"></i> New Session
+            </button>
+        </div>
+
+        <div class="modal fade" id="newSessionModal" tabindex="-1" aria-labelledby="newSessionModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="newSessionModalLabel">Start New Session</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Would you like to clear the analysis history before starting a new session?</p>
+                        <div class="d-flex justify-content-between">
+                            <form action="{{ url_for('new_session', clear_history=True) }}" method="post">
+                                <button type="submit" class="btn btn-danger">Clear History</button>
+                            </form>
+                            <form action="{{ url_for('new_session', clear_history=False) }}" method="post">
+                                <button type="submit" class="btn btn-primary">Keep History</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Enter Your DNA Sequence</h5>
+                    <p>Locate gRNA target sites/CRISPR guide RNA targets in a DNA sequence  with the characteristic NGG PAM sequence on the forward strand.</p>
+                <form method="post" action="/">
+                    <div class="mb-3">
+                        <label for="sequenceInput" class="form-label">DNA Sequence:</label>
+                        <textarea class="form-control" id="sequenceInput" name="sequence" rows="10" placeholder="Paste your DNA sequence here (e.g., ATGCGTAGCTAGCTAGCTAGCTAGCNGG...)">{{ sequence_input }}</textarea>
+                        <div class="form-text">Only A, T, C, G characters and whitespace are allowed.</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg" id="findTargetsButton">Find gRNA Targets</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Explore Examples</h5>
+                <p class="card-text"><small>Click "Use" to load an example sequence into the text area above.</small></p>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                        <span class="me-2">Multiple Targets: <code>GATTACAGATTACAGATTACAAGGCTGCCTG...</code></span>
+                        <button class="btn btn-sm btn-outline-secondary use-example-btn mt-1 mt-md-0" data-sequence="GATTACAGATTACAGATTACAAGGCTGCCTGACTGCCTGACGTACGTACGTCGGTAGCTAGCTAGCTAGCTAGCTAGCTGGGCCCCCCCCCCCCCCCCCCCC">Use</button>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                        <span class="me-2">Lowercase/Spaces: <code>gattaca gattaca gattaca agg...</code></span>
+                        <button class="btn btn-sm btn-outline-secondary use-example-btn mt-1 mt-md-0" data-sequence="gattaca gattaca gattaca agg ctgcctgactgcctgacg tacgtacgt cgg tagctagctagctagctagctagctagct ggg cccccccccccccccccccccc">Use</button>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                        <span class="me-2">No NGG Targets: <code>ATATATATATATATATATATATATAT...</code></span>
+                        <button class="btn btn-sm btn-outline-secondary use-example-btn mt-1 mt-md-0" data-sequence="ATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATATAT">Use</button>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                        <span class="me-2">Invalid Characters: <code>GATTACAGATTACANNNCGTAGCT...</code></span>
+                        <button class="btn btn-sm btn-outline-secondary use-example-btn mt-1 mt-md-0" data-sequence="GATTACAGATTACANNNCGTAGCTAGCTAGCTAGCTAGCTAGGXYZCTAGCT">Use</button>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                        <span class="me-2">Long Sequence: <code>TGACGTACGTACGTAGCTAGCTAGCT...</code></span>
+                        <button class="btn btn-sm btn-outline-secondary use-example-btn mt-1 mt-md-0" data-sequence="TGACGTACGTACGTAGCTAGCTAGCTAGCTAGCATGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGGTCGTAGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCCGGATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTGGGTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCT">Use</button>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                        <span class="me-2">Target Near End: <code>GCTAGCTAGCTAGCTAGCTAGCTAGGAA...</code></span>
+                        <button class="btn btn-sm btn-outline-secondary use-example-btn mt-1 mt-md-0" data-sequence="GCTAGCTAGCTAGCTAGCTAGCTAGGAAAAAAAAAAAAAAAAAAAAAGG">Use</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger" role="alert" id="errorSection">
+            <strong>Error:</strong> {{ error }}
+        </div>
+        {% endif %}
+
+        {% if results %}
+        <div class="card shadow-sm" id="resultsSection">
+            <div class="card-body">
+                <h5 class="card-title">gRNA Target Sites Found</h5>
+               <p>Found {{ results|length }} potential target(s) matching the pattern <code>[20 Nucleotides]NGG</code>.</p>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover results-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Position</th>
+                                <th scope="col">Guide Sequence (20 bp)</th>
+                                <th scope="col">PAM (NGG)</th>
+                                <th scope="col">GC Content (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in results %}
+                            <tr>
+                                <th scope="row">{{ result.id }}</th>
+                                <td>{{ result.position }}</td>
+                                <td class="guide-sequence">{{ result.guide }}</td>
+                                <td>{{ result.pam }}</td>
+                                <td>{{ result.gc_content }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% elif request.method == 'POST' and not error and results is not none and not results %}
+            <div class="alert alert-warning" role="alert" id="noResultsSection">
+                No suitable gRNA targets found for the provided sequence.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const useExampleButtons = document.querySelectorAll('.use-example-btn');
+        const sequenceInputTextarea = document.getElementById('sequenceInput');
+        const findTargetsButton = document.getElementById('findTargetsButton');
+
+        useExampleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const sequence = this.getAttribute('data-sequence');
+                sequenceInputTextarea.value = sequence;
+                sequenceInputTextarea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+
+        findTargetsButton.addEventListener('click', function() {
+
+        });
+
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('submitted')) {
+            const resultsSection = document.getElementById('resultsSection');
+            const errorSection = document.getElementById('errorSection');
+            const noResultsSection = document.getElementById('noResultsSection');
+
+            if (errorSection) {
+                errorSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else if (resultsSection) {
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else if (noResultsSection) {
+                noResultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                sequenceInputTextarea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    });
+</script>
+
+{% endblock %}
