@@ -2,6 +2,9 @@
 
 ## Visit at: [https://crisprapp.pythonanywhere.com/](https://crisprapp.pythonanywhere.com/)
 
+<img src="blob:chrome-untrusted://media-app/73307319-bacf-4363-ac3a-6d12fca0f4f4"/>![image](https://github.com/user-attachments/assets/dfb6a2b9-d4ad-4847-8a1f-95f6f5e038eb)
+
+
 ## Overview
 
 The CRISPR gRNA Tool is a web application developed using Python and Flask to assist researchers in identifying potential guide RNA (gRNA) target sites within a given DNA sequence. It focuses on the CRISPR-Cas9 system and detects 20-nucleotide sequences followed by the canonical NGG Protospacer Adjacent Motif (PAM) on the forward strand.
