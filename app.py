@@ -9,8 +9,11 @@ from io import BytesIO
 # --- App Setup ---
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'PARIAHistGRAU'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+app.config['SECRET_KEY'] = 'MY_KEY_LOOK_AWAY_lol'
+
+# --- MySQL Database Configuration ---
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://crisprapp:MYSQL_PASSWORD_LOOK_AWAY_lol@crisprapp.mysql.pythonanywhere-services.com/crisprapp$default'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
 db = SQLAlchemy(app)
 
 # --- Database Model ---
@@ -79,14 +82,15 @@ def index():
         sequence_input = request.form.get('sequence', '').strip()
         results, error = find_pam_sites(sequence_input)
 
+        # Storing analysis in the database
         analysis = Analysis(sequence_input=sequence_input, results_json=json.dumps(results) if results else None, error=error)
         db.session.add(analysis)
         db.session.commit()
 
         session['results'] = results
         session['error'] = error
-        return redirect(url_for('index') + '?submitted=true')
-        
+        return redirect(url_for('index') + '?submitted=true') 
+
     if 'results' in session:
         results = session.pop('results')
     if 'error' in session:
@@ -130,7 +134,8 @@ def export_analysis(analysis_id):
         mimetype='application/json'
     )
 
-# --- Run App ---
+# --- Runningg Apppp ---
+#### -- jawohl :)
 
 if __name__ == '__main__':
     with app.app_context():
