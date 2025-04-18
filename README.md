@@ -28,19 +28,17 @@ To run this application locally, you will need Python 3.11 installed on your sys
 
 1.  **Clone the repository (if you have it on GitHub):**
     ```bash
-    git clone [repository URL]
-    cd [repository name]
+    git clone https://github.com/kris96tian/CRISPR_app.git
+    cd CRISPR_app
     
-    ## Create a virtual environment (recommended):**
+    ## Create a virtual environment:**
     python -m venv venv
     
-    source venv/bin/activate  # On macOS and Linux
-    # venv\Scripts\activate   # On Windows
-    ## Install the required dependencies:**
+    source venv/bin/activate 
     pip install Flask Flask-SQLAlchemy mysqlclient
 
     ##Usage:
-    python app.py
+    python3 app.py
     ```
 2.  **Open your web browser:** Navigate to `http://127.0.0.1:5000/` (or the address provided in your terminal).
 3.  **Enter your DNA sequence:** Paste your DNA sequence into the text area on the homepage.
